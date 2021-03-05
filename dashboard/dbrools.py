@@ -8,6 +8,7 @@ my_Personal = db['Personal']
 
 
 def clean():
+    my_Personal.remove({})
     my_data.remove({})
 
 
@@ -63,7 +64,8 @@ def get_list():
 
 def add_person(mail):
     data = {
-        "email": mail
+        "email": mail,
+        "questions": {"test": "test"}
     }
     insert_document(my_Personal, data)
 
@@ -75,6 +77,30 @@ def get_all_personal():
     return d
 
 
+def insert_answer(btn1, btn2, answer, mail):
+    myquery = {"email": mail}
+    newvalues = {"$set": {f"questions.{btn1}_{btn2}": answer}}
+    return my_Personal.update_one(myquery, newvalues)
+
+
+def check_person(mail):
+    for i in my_Personal.find({"email": mail}):
+        return list(i["questions"].keys())
+
+
+
+
+
 # clean()
 # create_main_data()
+# add_person("test@test.com")
+# print(check_person("test@test.com"))
+
+
+
+
+#
+#
 # print(get_list())
+# for i in my_Personal.find({}):
+#     print(i)

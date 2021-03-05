@@ -1,3 +1,5 @@
+import time
+
 import dash, json, sys, os
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
@@ -69,67 +71,10 @@ def display_page(pathname):
 #         raise PreventUpdate
 #
 #
-# # ##############################   Orders   ##################################
-# @dash_app.callback(
-#     [Output({'type': 'order_result', 'index': MATCH}, "children")],
-#
-#     [Input({'type': 'order_buy_btn', 'index': MATCH}, 'n_clicks'),
-#      Input({'type': 'order_sell_btn', 'index': MATCH}, 'n_clicks'),
-#      Input({'type': 'order_sec_btn', 'index': MATCH}, 'value'),
-#      Input({'type': 'order_qty_btn', 'index': MATCH}, 'value'),
-#      Input({'type': 'order_price_btn', 'index': MATCH}, 'value')],
-#
-#     [State({'type': 'order_sec_btn', 'index': MATCH}, 'value'),
-#      State({'type': 'order_price_btn', 'index': MATCH}, 'value'),
-#      State({'type': 'order_qty_btn', 'index': MATCH}, 'value')]
-# )
-# def toggle_modal(n1, n2, n3, n4, n5, symbol, price, qty):
-#     trigger = dash.callback_context.triggered[0]
-#     button = trigger["prop_id"].split(".")[0]
-#
-#     if not button:
-#         raise PreventUpdate
-#     else:
-#         if type(button) is str:
-#             button = json.loads(button.replace("'", "\""))
-#         if button["type"] == 'order_sec_btn':
-#             if symbol in full_list2 and qty is not None:
-#                 return [None]
-#             else:
-#                 raise PreventUpdate
-#         elif button["type"] == 'order_price_btn':
-#             if price is not None and qty is not None:
-#                 result = float(price) * float(qty)
-#                 return [f"{result} $"]
-#             else:
-#                 raise PreventUpdate
-#         elif button["type"] == 'order_qty_btn':
-#             if symbol in full_list2 and qty is not None:
-#                 # my_new_price = dbrools.get_my_data()
-#                 # result = float(my_new_price["data"][symbol]["a"][-1]) * float(qty)
-#                 return [None]
-#             else:
-#                 raise PreventUpdate
-#         elif button["type"] == 'order_buy_btn':
-#             if not symbol or not qty:
-#                 return ["ERROR"]
-#             reponse = Orders.my_order(symbol=symbol, side=1, amount=qty, price=price)
-#             if reponse["error"]:
-#                 return [f"{reponse['result']}"]
-#             return [f"You bought {symbol}"]
-#         elif button["type"] == 'order_sell_btn':
-#             if not symbol or not qty:
-#                 return ["ERROR"]
-#             reponse = Orders.my_order(symbol=symbol, side=2, amount=qty, price=price)
-#             if reponse["error"]:
-#                 return [f"{reponse['result']}"]
-#             return [f"You sold {symbol}"]
-#         else:
-#             raise PreventUpdate
-#
-#
+
 @dash_app.callback(
-    [Output("main_list", "children")],
+    [Output("main_list", "children"),
+     Output("mymail", "children")],
     [Input("save_email", "n_clicks")],
     [State("new_email", "value")]
 )
@@ -137,105 +82,79 @@ def tab_content(n1, mail):
     trigger = dash.callback_context.triggered[0]
     button = trigger["prop_id"].split(".")[0]
 
-    print(mail)
     if not button:
         raise PreventUpdate
     else:
         if button == "save_email":
             if mail not in dbrools.get_all_personal():
                 dbrools.add_person(mail)
-                return ["Success"]
+                return layouts.quiz_tab(mail), mail
             else:
-                return [html.H1("This mail has been used")]
+                return layouts.quiz_tab(mail), mail
         else:
             raise PreventUpdate
 
-# ###############################    REGIM BUTTONS    ##################################
-# @dash_app.callback([Output('main_buttons', 'children')],
-#                    [Input('parser_on', 'n_clicks'),
-#                     Input('regim_on', 'n_clicks'),
-#                     Input('regim_off', 'n_clicks'),
-#                     Input('balance_btn', 'n_clicks'),
-#                     ])
-# def trigger_by_modify(n1, n2, n3, n4):
-#     ctx = dash.callback_context
-#     button_id = ctx.triggered[0]['prop_id'].split('.')
-#     # print(button_id[0])
-#     if button_id[0] == 'parser_on':
-#         a_file1 = open(main_path_data + "/bal.json", "r")
-#         rools = json.load(a_file1)
-#         a_file1.close()
-#         if rools["bin"] == 5000:
-#             rools["bin"] = 1000
-#         else:
-#             rools["bin"] = 5000
-#
-#         f = open(main_path_data + "/bal.json", "w")
-#         json.dump(rools, f)
-#         f.close()
-#
-#         # with subprocess.Popen(["python", '/usr/local/WB/dashboard/My_parser.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as proc1, \
-#         #         open('/usr/local/WB/data/Parser_Main.log', 'w') as file1:
-#         #     t1 = threading.Thread(target=output_reader, args=(proc1, file1))
-#         #     t1.start()
-#         #     t1.join()
-#         return [layouts.start_buttons_card(b1=True, b2=False, b3=False, b4=False)]
-#     # elif button_id[0] == 'parser_off':
-#     #     # script = "/usr/local/WB/dashboard/My_parser.py"
-#     #     # subprocess.check_call(["pkill", "-9", "-f", script])
-#     #     return [layouts.start_buttons_card(b1=False, b2=True, b3=False, b4=False)]
-#     elif button_id[0] == 'regim_on':
-#         with subprocess.Popen(["python", '/usr/local/WB/dashboard/BOT.py'], stdout=subprocess.PIPE,
-#                               stderr=subprocess.PIPE) as proc1, \
-#                 open('/usr/local/WB/data/BOT_log.txt', 'w') as file1:
-#             t1 = threading.Thread(target=output_reader, args=(proc1, file1))
-#             t1.start()
-#             t1.join()
-#         return [layouts.start_buttons_card(b1=False, b2=False, b3=True, b4=False)]
-#     elif button_id[0] == 'regim_off':
-#         script = "/usr/local/WB/dashboard/BOT.py"
-#         subprocess.check_call(["pkill", "-9", "-f", script])
-#         return [layouts.start_buttons_card(b1=False, b2=False, b3=False, b4=True)]
-#     elif button_id[0] == 'balance_btn':
-#         Orders.my_balance()
-#         return [layouts.start_buttons_card(b1=False, b2=False, b3=False, b4=False)]
-#     else:
-#         raise PreventUpdate
-#
-#
-# ###############################    BALANCE  BUTTONS    ##################################
-# @dash_app.callback([Output('full_list', 'children')],
-#                    [
-#                        Input('parser_on', 'n_clicks'),
-#                        Input('balance_btn', 'n_clicks'),
-#                    ])
-# def trigger_by_modify(n1, n2):
-#     ctx = dash.callback_context
-#     button_id = ctx.triggered[0]['prop_id'].split('.')
-#
-#     if button_id[0] == 'balance_btn':
-#         return [layouts.full_list()]
-#     elif button_id[0] == 'parser_on':
-#         return [layouts.full_list()]
-#     else:
-#         raise PreventUpdate
-#
-#
-# # ##############################    Refresh GRAFS    ##################################
-# @dash_app.callback(
-#     my_grafs,
-#     [Input("interval_graf_full", 'n_intervals')])
-# def modal_content_coll(n):
-#     ctx = dash.callback_context
-#     button_id = ctx.triggered[0]['prop_id'].split('.')
-#
-#     if button_id[0] == 'interval_graf_full':
-#
-#         reponse = day_trader.refresh_grafs()
-#
-#         return reponse
-#     else:
-#         raise PreventUpdate
+
+# ##############################   Questions   ##################################
+@dash_app.callback(
+    [Output({'type': 'symbol', 'index': MATCH}, "value")],
+
+    [Input({'type': 'next_btn1', 'index': MATCH}, 'n_clicks'),
+     Input({'type': 'next_btn2', 'index': MATCH}, 'n_clicks')],
+
+    [State({'type': 'next_btn1', 'index': MATCH}, 'children'),
+     State({'type': 'next_btn2', 'index': MATCH}, 'children')]
+)
+def toggle_modal(n1, n2, symbol1, symbol2):
+    trigger = dash.callback_context.triggered[0]
+    button = trigger["prop_id"].split(".")[0]
+
+    if not button:
+        raise PreventUpdate
+    else:
+        if type(button) is str:
+            button = json.loads(button.replace("'", "\""))
+        if button["type"] == 'next_btn1':
+            print(symbol1)
+            return [symbol1]
+        elif button["type"] == 'next_btn2':
+            print(symbol2)
+            return [symbol2]
+        else:
+            raise PreventUpdate
+
+
+# ##############################   Questions   ##################################
+@dash_app.callback(
+    [Output('quiz_list', "children")],
+    [Input({'type': 'next_btn', 'index': ALL}, 'n_clicks')],
+    [State({'type': 'symbol', 'index': ALL}, 'value'),
+     State({'type': 'next_btn1', 'index': ALL}, 'children'),
+     State({'type': 'next_btn2', 'index': ALL}, 'children'),
+     State("mymail", 'children')]
+)
+def toggle_modal(n1, symbol, btn1, btn2, mymail):
+    trigger = dash.callback_context.triggered[0]
+    button = trigger["prop_id"].split(".")[0]
+
+    if not button:
+        raise PreventUpdate
+    else:
+        if type(button) is str:
+            button = json.loads(button.replace("'", "\""))
+        if button["type"] == 'next_btn':
+
+            dbrools.insert_answer(btn1[0], btn2[0], symbol[0], mymail)
+            time.sleep(0.5)
+            answered = dbrools.check_person(mymail)
+            for i in dbrools.get_list():
+                if f"{i['option1']}_{i['option2']}" in answered:
+                    pass
+                else:
+                    return [layouts.create_quiz(i['option1'], i['option2'], i['option1'])]
+            return [html.H1("You have already finished the test")]
+        else:
+            raise PreventUpdate
 
 
 if __name__ == '__main__':
