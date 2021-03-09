@@ -88,7 +88,16 @@ def check_person(mail):
         return list(i["questions"].keys())
 
 
+def check_person_answers(mail):
+    for i in my_Personal.find({"email": mail}):
+        return list(i["questions"].values())
 
+
+
+lt = check_person_answers("76@test.com")
+print(set(lt))
+# for i in get_all_personal():
+#     print(i)
 
 
 # clean()

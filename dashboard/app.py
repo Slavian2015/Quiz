@@ -1,5 +1,4 @@
 import time
-
 import dash, json, sys, os
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
@@ -10,6 +9,7 @@ import flask
 import layouts
 import warnings
 import dbrools
+import admin
 
 warnings.filterwarnings("ignore")
 
@@ -51,26 +51,10 @@ def display_page(pathname):
     if pathname == '/':
         return layouts.my_view()
     elif pathname == '/987':
-        return "Admin"
+        return admin.my_view()
     else:
         return "404"
 
-
-# # ##############################    Refresh RATES    ##################################
-# @dash_app.callback(
-#     [Output("sub_column_left", "children")],
-#     [Input("interval_graf", 'n_intervals')])
-# def modal_content_coll(n):
-#     ctx = dash.callback_context
-#     button_id = ctx.triggered[0]['prop_id'].split('.')
-#
-#     if button_id[0] == 'interval_graf':
-#         reponse = layouts.sub_column_left()
-#         return [reponse]
-#     else:
-#         raise PreventUpdate
-#
-#
 
 @dash_app.callback(
     [Output("main_list", "children"),
@@ -143,16 +127,40 @@ def toggle_modal(n1, symbol, btn1, btn2, mymail):
         if type(button) is str:
             button = json.loads(button.replace("'", "\""))
         if button["type"] == 'next_btn':
+            if symbol is None:
+                raise PreventUpdate
+            else:
+                dbrools.insert_answer(btn1[0], btn2[0], symbol[0], mymail)
+                time.sleep(0.5)
+                answered = dbrools.check_person(mymail)
+                for i in dbrools.get_list():
+                    if f"{i['option1']}_{i['option2']}" in answered:
+                        pass
+                    else:
+                        return [layouts.create_quiz(i['option1'], i['option2'], i['option1'])]
+                return [html.H1("You have already finished the test")]
+        else:
+            raise PreventUpdate
 
-            dbrools.insert_answer(btn1[0], btn2[0], symbol[0], mymail)
-            time.sleep(0.5)
-            answered = dbrools.check_person(mymail)
-            for i in dbrools.get_list():
-                if f"{i['option1']}_{i['option2']}" in answered:
-                    pass
-                else:
-                    return [layouts.create_quiz(i['option1'], i['option2'], i['option1'])]
-            return [html.H1("You have already finished the test")]
+
+# ##############################   Questions   ##################################
+@dash_app.callback(
+    [Output('a_graph', "children")],
+    [Input({'type': 'persons', 'index': ALL}, 'n_clicks')]
+)
+def toggle_modal(n1):
+    trigger = dash.callback_context.triggered[0]
+
+    button = trigger["prop_id"][:-9]
+
+    if not button:
+        raise PreventUpdate
+    else:
+        print(button, "\n\n")
+        if type(button) is str:
+            button = json.loads(button.replace("'", "\""))
+        if button["type"] == 'persons':
+            return [admin.column_right(button["index"])]
         else:
             raise PreventUpdate
 
