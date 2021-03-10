@@ -3,3 +3,4 @@
 /venv/
 /.docker/mongodb/
 dashboard/Settings.py
+instruction.txt

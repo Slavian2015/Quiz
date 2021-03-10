@@ -8,7 +8,7 @@ my_Personal = db['Personal']
 
 
 def clean():
-    my_Personal.remove({})
+    # my_Personal.remove({})
     my_data.remove({})
 
 
@@ -33,16 +33,16 @@ def update_main_data(data=None):
 
 
 def create_main_data():
-    ls = ["Freedom",
-          "Mastery",
-          "Power",
-          "Goal",
+    ls = ["Acceptance",
           "Curiosity",
-          "Honor",
-          "Acceptance",
-          "Relatedness",
-          "Order",
+          "Freedom",
           "Status",
+          "Goal",
+          "Honor",
+          "Mastery",
+          "Order",
+          "Power",
+          "Relatedness",
           ]
 
     old = []
@@ -92,20 +92,16 @@ def check_person_answers(mail):
     for i in my_Personal.find({"email": mail}):
         return list(i["questions"].values())
 
-
-
-lt = check_person_answers("76@test.com")
-print(set(lt))
+# lt = check_person_answers("76@test.com")
+# print(set(lt))
 # for i in get_all_personal():
 #     print(i)
 
 
-# clean()
-# create_main_data()
+clean()
+create_main_data()
 # add_person("test@test.com")
 # print(check_person("test@test.com"))
-
-
 
 
 #

@@ -86,10 +86,12 @@ def tab_content(n1, mail):
     [Input({'type': 'next_btn1', 'index': MATCH}, 'n_clicks'),
      Input({'type': 'next_btn2', 'index': MATCH}, 'n_clicks')],
 
-    [State({'type': 'next_btn1', 'index': MATCH}, 'children'),
-     State({'type': 'next_btn2', 'index': MATCH}, 'children')]
+    [State({'type': 'next_btn1', 'index': MATCH}, 'key'),
+     State({'type': 'next_btn2', 'index': MATCH}, 'key')]
 )
 def toggle_modal(n1, n2, symbol1, symbol2):
+
+    # print(symbol1)
     trigger = dash.callback_context.triggered[0]
     button = trigger["prop_id"].split(".")[0]
 
@@ -113,8 +115,8 @@ def toggle_modal(n1, n2, symbol1, symbol2):
     [Output('quiz_list', "children")],
     [Input({'type': 'next_btn', 'index': ALL}, 'n_clicks')],
     [State({'type': 'symbol', 'index': ALL}, 'value'),
-     State({'type': 'next_btn1', 'index': ALL}, 'children'),
-     State({'type': 'next_btn2', 'index': ALL}, 'children'),
+     State({'type': 'next_btn1', 'index': ALL}, 'key'),
+     State({'type': 'next_btn2', 'index': ALL}, 'key'),
      State("mymail", 'children')]
 )
 def toggle_modal(n1, symbol, btn1, btn2, mymail):
@@ -127,12 +129,15 @@ def toggle_modal(n1, symbol, btn1, btn2, mymail):
         if type(button) is str:
             button = json.loads(button.replace("'", "\""))
         if button["type"] == 'next_btn':
-            if symbol is None:
+
+            print("\n\n>>>>>>>>>>>",symbol)
+            if symbol[0] is None:
                 raise PreventUpdate
             else:
                 dbrools.insert_answer(btn1[0], btn2[0], symbol[0], mymail)
                 time.sleep(0.5)
                 answered = dbrools.check_person(mymail)
+
                 for i in dbrools.get_list():
                     if f"{i['option1']}_{i['option2']}" in answered:
                         pass

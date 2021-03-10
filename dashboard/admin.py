@@ -117,8 +117,12 @@ def column_left():
 def column_right(mail="test@test.com"):
     lt = dbrools.check_person_answers(mail)
     d = Counter(lt)
+
+    del d["test"]
     if mail == "test@test.com":
         d = candidat
+
+    d = dict(sorted(d.items(), key=lambda item: item[0]))
 
     fig = go.Figure(go.Bar(
         x=[*d.values()],

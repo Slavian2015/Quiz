@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
-import json
-import time
-
-import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 import dash_html_components as html
-import pandas as pd
 import sys, base64, os
 import dbrools
 
 sys.path.insert(0, r'/usr/local/WB')
 main_path_data2 = os.path.expanduser('/usr/local/WB/data/')
+main_path_data = os.path.expanduser('/usr/local/WB/dashboard/assets/')
 
 
 def my_view():
@@ -39,7 +35,7 @@ def content():
                                       "margin": "0",
                                       "padding": "0"
                                       },
-                               width=4,
+                               width=3,
                                className="no-scrollbars",
                                children=[]),
                        dbc.Col(style={"textAlign": "center",
@@ -50,7 +46,7 @@ def content():
                                       "padding-top": "2%"
                                       },
                                align="center",
-                               width=4,
+                               width=6,
                                className="no-scrollbars",
                                children=column_left()),
                        dbc.Col(style={"textAlign": "center",
@@ -60,7 +56,7 @@ def content():
                                       "overflowY": "hidden",
                                       "margin": "0",
                                       "padding": "0"},
-                               width=4,
+                               width=3,
                                children=[]),
                    ],
                    no_gutters=True)
@@ -129,6 +125,26 @@ def quiz_tab(mymail):
 
 
 def create_quiz(opt1, opt2, num):
+
+    print(f"{opt1}_{opt2}")
+
+    encoded_image1 = base64.b64encode(open(main_path_data + f'{opt1.lower()}.png', 'rb').read()).decode('ascii')
+    encoded_image2 = base64.b64encode(open(main_path_data + f'{opt2.lower()}.png', 'rb').read()).decode('ascii')
+
+    tt1 = html.Img(src='data:image/png;base64,{}'.format(encoded_image1),
+                   style={
+                       "margin": "0", "padding": "0",
+                       "width": "300px",
+                       # "textAlign": "center"
+                   }),
+
+    tt2 = html.Img(src='data:image/png;base64,{}'.format(encoded_image2),
+                   style={
+                       "margin": "0", "padding": "0",
+                       "width": "300px",
+                       # "textAlign": "center"
+                   }),
+
     card = dbc.Card(color="secondary",
                     style={"width": "100%",
                            "padding": "0",
@@ -148,19 +164,26 @@ def create_quiz(opt1, opt2, num):
                                            },
                                     width=6,
                                     className="no-scrollbars",
-                                    children=[dbc.Button(opt1,
+                                    children=[dbc.Button(tt1,
                                                          id={"type": "next_btn1",
-                                                             "index": num},
-                                                         color="info")]),
+                                                             "index": num,
+                                                             # "opt": opt1,
+                                                             },
+                                                         key=opt1,
+                                                         color="info"),
+                                              ]),
                             dbc.Col(style={"textAlign": "center",
                                            "margin": "0",
                                            "padding": "0"
                                            },
                                     width=6,
                                     className="no-scrollbars",
-                                    children=[dbc.Button(opt2,
+                                    children=[dbc.Button(tt2,
                                                          id={"type": "next_btn2",
-                                                             "index": num},
+                                                             "index": num,
+                                                             # "opt": opt2
+                                                             },
+                                                         key=opt2,
                                                          color="info")]),
                         ])),
                         dbc.CardFooter(dbc.Button("NEXT >>",
